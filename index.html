@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StreamWave AI Clone</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+
+    <div class="bg-gray-800 p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-700">
+        <h1 class="text-2xl font-bold text-center mb-6 text-blue-400">🌊 StreamWave AI Clone</h1>
+        
+        <div class="mb-4">
+            <label class="block text-sm font-medium mb-2 text-gray-300">အသံပြောင်းလိုသော စာသားထည့်ပါ</label>
+            <textarea id="textInput" rows="4" class="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500 text-white" placeholder="ဒီနေရာမှာ စာရိုက်ပါ..."></textarea>
+        </div>
+
+        <div class="mb-6">
+            <label class="block text-sm font-medium mb-2 text-gray-300">Voice ရွေးချယ်ပါ</label>
+            <select id="voiceSelect" class="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500 text-white">
+                <option value="Rachel">Rachel (အမျိုးသမီးသံ)</option>
+                <option value="Drew">Drew (အမျိုးသားသံ)</option>
+                <option value="Clyde">Clyde (အဖိုးအိုသံ)</option>
+            </select>
+        </div>
+
+        <button id="generateBtn" onclick="generateAudio()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition duration-200">
+            Generate Voice 🎧
+        </button>
+
+        <div id="audioContainer" class="mt-6 hidden">
+            <p class="text-sm text-green-400 mb-2 text-center">🎉 အသံဖိုင် အောင်မြင်စွာ ဖန်တီးပြီးပါပြီ။</p>
+            <audio id="audioPlayer" controls class="w-full bg-gray-700 rounded-lg"></audio>
+        </div>
+    </div>
+
+    <script>
+        async function generateAudio() {
+            const textInput = document.getElementById('textInput').value;
+            const voiceSelect = document.getElementById('voiceSelect').value;
+            const generateBtn = document.getElementById('generateBtn');
+            const audioContainer = document.getElementById('audioContainer');
+            const audioPlayer = document.getElementById('audioPlayer');
+
+            if (!textInput.trim()) {
+                alert("ကျေးဇူးပြု၍ စာသားတစ်ခုခု ရိုက်ထည့်ပါ!");
+                return;
+            }
+
+            generateBtn.innerText = "Generating... Please wait...";
+            generateBtn.disabled = true;
+            audioContainer.classList.add('hidden');
+
+            try {
+                // ⚠️ သတိပြုရန်- Render Link ရလာတဲ့အခါ ဤနေရာမှာ ပြောင်းထည့်ရပါမယ်
+                const response = await fetch('https://streamwave-backend.onrender.com/generate-voice/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: textInput,
+                        voice_id: voiceSelect
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error('API ခေါ်ဆိုမှု မအောင်မြင်ပါ');
+                }
+
+                const blob = await response.blob();
+                const audioUrl = URL.createObjectURL(blob);
+
+                audioPlayer.src = audioUrl;
+                audioContainer.classList.remove('hidden');
+
+            } catch (error) {
+                alert("အမှားအယွင်းတစ်ခု ရှိသွားပါသည်- " + error.message);
+            } finally {
+                generateBtn.innerText = "Generate Voice 🎧";
+                generateBtn.disabled = false;
+            }
+        }
+    </script>
+</body>
+              </html>
+                                                                                        
