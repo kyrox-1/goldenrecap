@@ -12,8 +12,8 @@
         <h1 class="text-2xl font-bold mb-6 text-center text-indigo-400">Golden Recap AI</h1>
         
         <div class="mb-4">
-            <label class="block text-sm font-medium mb-2 text-gray-300">စာသားထည့်ပါ (English)</label>
-            <textarea id="textInput" rows="4" class="w-full p-3 bg-gray-700 rounded-lg text-white border border-gray-600 focus:outline-none focus:border-indigo-500" placeholder="Type something here..."></textarea>
+            <label class="block text-sm font-medium mb-2 text-gray-300">မြန်မာစာ သို့မဟုတ် English ရိုက်ပါ</label>
+            <textarea id="textInput" rows="4" class="w-full p-3 bg-gray-700 rounded-lg text-white border border-gray-600 focus:outline-none focus:border-indigo-500" placeholder="နေကောင်းလား လို့ မြန်မာလို ရိုက်လို့ရပါပြီ..."></textarea>
         </div>
 
         <div class="mb-6">
@@ -52,22 +52,45 @@
                 return;
             }
 
-            // UI ပြောင်းလဲခြင်း
-            statusDiv.innerText = "ဆာဗာမှ အသံထုတ်ပေးနေပါသည်... ခေတ္တစောင့်ပါ။";
+            // UI အခြေအနေပြောင်းလဲခြင်း
+            statusDiv.innerText = "မြန်မာစာကို ဘာသာပြန်ပြီး အသံထုတ်ပေးနေပါသည်... စောင့်ပါ။";
             statusDiv.classList.remove('hidden');
             audioPlayer.classList.add('hidden');
             generateBtn.disabled = true;
-            generateBtn.innerText = "Generating... ⏳";
+            generateBtn.innerText = "Processing... ⏳";
 
             try {
-                // သင်၏ Render Backend Link ကို ဤနေရာတွင် အတိအကျ ထည့်သွင်းထားသည်
+                // ၁။ Google Translate API သုံးပြီး ကာရာအိုကေ (Singlish) သို့မဟုတ် အင်္ဂလိပ်လို ပြောင်းခြင်း
+                statusDiv.innerText = "စာသားကို AI ဖတ်နိုင်အောင် ပြောင်းလဲနေပါသည်...";
+                const translateUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=${encodeURIComponent(text)}`;
+                
+                const transResponse = await fetch(translateUrl);
+                if (!transResponse.ok) throw new Error('Translation failed');
+                
+                const transData = await transResponse.json();
+                let translatedText = "";
+                
+                // ဘာသာပြန်ထားတဲ့ စာသားတွေကို ပြန်ပေါင်းယူခြင်း
+                if (transData && transData[0]) {
+                    transData[0].forEach(item => {
+                        if (item[0]) translatedText += item[0] + " ";
+                    });
+                }
+
+                if (!translatedText.trim()) {
+                    translatedText = text; // ဘာသာပြန်မရရင် မူရင်းအတိုင်း သုံးမယ်
+                }
+
+                statusDiv.innerText = "ဆာဗာမှ အသံဖိုင် စတင်ထုတ်လုပ်နေပါပြီ...";
+
+                // ၂။ အသံပြောင်းလဲပေးမယ့် Render Backend ဆီ ပို့ခြင်း
                 const response = await fetch('https://goldenrecap-backend.onrender.com/generate-voice/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        text: text,
+                        text: translatedText,
                         voice_id: voiceId
                     })
                 });
