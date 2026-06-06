@@ -9,14 +9,14 @@ app = FastAPI()
 # ဘယ်နေရာကမဆို လှမ်းချိတ်ရင် အလုပ်လုပ်အောင် CORS ဖွင့်ပေးခြင်း
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # ကမ္ဘာ့ဘယ်လင့်ခ်ကမဆို လှမ်းချိတ်လို့ရအောင် ဖွင့်ပေးထားသည်
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# ElevenLabs API Key ကို Render Environment ထဲကနေ ဆွဲယူမည် (သို့မဟုတ် သင့် Key တိုက်ရိုက်ထည့်နိုင်သည်)
-ELEVENLABS_API_KEY = os.getenv("ELEVENLABS_API_KEY", "သင့်_API_Key_နေရာတွင်_အစားထိုးရန်")
+# သင့်ရဲ့ API Key အသစ်ကို ဤနေရာတွင် အပြည့်အစုံ ထည့်သွင်းထားပါသည်
+ELEVENLABS_API_KEY = "sk_85eb92424fdb3f9a8902b936bd276b6ad6005a0d892b7a1f"
 
 class VoiceRequest(BaseModel):
     text: str
@@ -28,7 +28,6 @@ def read_root():
 
 @app.post("/generate-voice/")
 async def generate_voice(request: VoiceRequest):
-    # ElevenLabs သို့ လှမ်းပို့မည့် URL
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{request.voice_id}"
     
     headers = {
@@ -52,9 +51,9 @@ async def generate_voice(request: VoiceRequest):
             if response.status_code != 200:
                 raise HTTPException(status_code=response.status_code, detail="ElevenLabs API Error")
             
-            # အသံဖိုင် (Binary) ကို တိုက်ရိုက် ပြန်ပေးခြင်း
             from fastapi.responses import Response
             return Response(content=response.content, media_type="audio/mpeg")
             
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
+    
