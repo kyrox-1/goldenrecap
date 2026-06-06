@@ -54,7 +54,7 @@
 
             try {
                 // ⚠️ သတိပြုရန်- Render Link ရလာတဲ့အခါ ဤနေရာမှာ ပြောင်းထည့်ရပါမယ်
-                const response = await fetch('https://streamwave-backend.onrender.com/generate-voice/', {
+                const response = await fetch('https://goldenrecap-backend.onrender.com/generate-voice/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -62,8 +62,7 @@
                     body: JSON.stringify({
                         text: textInput,
                         voice_id: voiceSelect
-                    })
-                });
+                   'https              });
 
                 if (!response.ok) {
                     throw new Error('API ခေါ်ဆိုမှု မအောင်မြင်ပါ');
